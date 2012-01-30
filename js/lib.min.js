@@ -1,0 +1,3 @@
+// usage: log('inside coolFunc', this, arguments);
+// paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
+window.log=function(){log.history=log.history||[],log.history.push(arguments);if(this.console){arguments.callee=arguments.callee.caller;var a=[].slice.call(arguments);typeof console.log=="object"?log.apply.call(console.log,console,a):console.log.apply(console,a)}},function(a){function b(){}for(var c="assert,clear,count,debug,dir,dirxml,error,exception,firebug,group,groupCollapsed,groupEnd,info,log,memoryProfile,memoryProfileEnd,profile,profileEnd,table,time,timeEnd,timeStamp,trace,warn".split(","),d;d=c.pop();)a[d]=a[d]||b}(function(){try{return console.log(),window.console}catch(a){return window.console={}}}());
