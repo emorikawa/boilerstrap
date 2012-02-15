@@ -2,12 +2,22 @@
 A ready to go website that integrates Boostrap and HTML5 Boilerplate.
 More best practices than you know what to do with.
 
-## CSS Structure - We use LESS
-* less: Put all raw less files inside of this folder. Use less includes to link all files together
-* styles_compiled.css The output of all less files.
+We support coffeescript, sass, and less.
 
-## Javscript Structure
-* lib_compile: Put all site-wide libraries (both 3rd party and application-specific) that should be compiled together and minified
-* lib_uncompile: Put all site-wide libraries (only 3rd party) that need to be explicitly included on a page-by-page basis by Modernizr
-* app_src: Put all application specific javascript that needs to be included on a page-by-page baseis by Modernizr
-* lib.min.src: The compiled and minified version of what is inside of lib_compile
+## Structure:
+* Rakefile - Run `rake` to just build and `rake watch` to build and watch
+* css
+  * bin - All compiled css files end up here
+  * lib - Not touched by Rakefile. Include from src.
+  * src - All raw css, or less, or sass files.
+    * subfolder - All css (ONLY) files are concatenated and put in css/bin as subfolder.css
+* js
+  * bin - All compiled js files. Each file has a regular and minified version.
+  * lib - Not touched by Rakefile. Things like jQuery, etc.
+  * src - All raw javascript and/or coffeescript files.
+    * subfolder - All files in subfolder are concatenated and put in js/bin as subfolder.js and subfolder.min.js
+
+## Best Practices
+* Use the built-in @include directives of less and sass to include files from css/lib.
+* Think carefully about what you actually want to concatenate, and what you want to independently load.
+* All javascript (except modernizr itself) should be loaded with Modernizr.

@@ -11,12 +11,12 @@
 
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width">
-  <link rel="stylesheet" href="css/styles_compiled.min.css">
+  <link rel="stylesheet" href="css/bin/styles.css">
 
   <!-- All JavaScript at the bottom, except this Modernizr build.
        Modernizr enables HTML5 elements & feature detects for optimal performance.
        Create your own custom Modernizr build: www.modernizr.com/download/ -->
-  <script src="js/lib_uncompile/modernizr-2.0.6.min.js"></script>
+  <script src="js/lib/modernizr-2.0.6.min.js"></script>
 </head>
 
 <body>
@@ -44,18 +44,18 @@
          load: '//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js',
          complete: function() {
             if ( !window.jQuery ) {
-               Modernizr.load('js/lib_uncompile/jquery-1.7.1.min.js');
+               Modernizr.load('js/lib/jquery-1.7.1.min.js');
             }
          }
       },
       {
          // Detect IE polyfill for JSON parsing
          test : window.JSON,
-         nope : 'js/lib_uncompile/json2.js'
+         nope : 'js/bin/json2.min.js'
       },
       {
          // Load minified lib
-         load: 'js/lib.min.js'
+         load: 'js/bin/global.min.js'
       }
       // Anything else that needs to be loaded should happen here!
     ]);
