@@ -1,7 +1,9 @@
 JS_SRC = "js/src"
+JS_LIB = "js/lib"
 JS_BIN = "js/bin"
 
 CSS_SRC = "css/src"
+CSS_LIB = "css/lib"
 CSS_BIN = "css/bin"
 
 # Compiles scripts
@@ -16,6 +18,18 @@ task :default do
   Rake::Task['minify'].invoke
   Rake::Task['css'].invoke
   puts "==== DONE ===="
+end
+
+task :watch do
+  begin
+    require 'watchr'
+    script = Watchr::Script.new
+    script.watch('(js|css)/(src|lib)/.*') { system 'rake' }
+    contrl = Watchr::Controller.new(script, Watchr.handler.new)
+    contrl.run
+  rescue LoadError
+    fail "You need watchr! Install it by running `gem install watchr`"
+  end
 end
 
 desc 'Compiles, and concatenates javascript and coffeescript'
