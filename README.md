@@ -6,6 +6,8 @@ I wanted bootstrap, but with all of the HTML5 Boilerplate tweaks, Modernizr load
 
 I also wanted an asset organizational strcuture that better assessed the reality that nowdays we live with an uncomforatble mix of compiled and static sources files for css and javascript.
 
+Furthermore, it's nice to have support for coffeescript, less, and sass, plus easy extensibility to whatever else you want.
+
 Finally, I just wanted the peace of mind that with a single clone, I'm ready to go with a robust, clean, efficient, cross-browser, optimized, and organized blank slate.
 
 ## How to Use:
