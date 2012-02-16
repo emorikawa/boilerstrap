@@ -15,13 +15,13 @@ We support coffeescript, sass, and less.
   * **bin** - All compiled css files end up here
   * **lib** - Not touched by Rakefile. You should include from src.
   * **src** - All raw css, or less, or sass files. They are compiled and copied one-to-one to the css/bin directory. Use Less or Sass `@include` directives to combine multiple files together. If using raw css, use subfolders to concatenate files.
-    * *your_subfolder* - All css (ONLY) files are concatenated and put in css/bin as `subfolder.css`
+    - *your_subfolder* - All css (ONLY) files are concatenated and put in css/bin as `subfolder.css`
 * **js**
   * **bin** - All compiled js files. Each file has a regular and minified version.
   * **lib** - Not touched by Rakefile. Meant for things like jQuery, or anything else you don't want compiled.
   * **src** - All raw javascript and/or coffeescript files go here. They are compiled and copied one-to-one to the js/bin directory. Use subfolders if you want concatenation.
-    * **global** - All files put in here will be concatenated, compiled, and put in js/bin as `global.js` and `global.min.js`
-    * *your_subfolder* - All files in 'your_subfolder' are concatenated, compiled, and put in js/bin as `your_subfolder.js` and `your_subfolder.min.js`
+    - **global** - All files put in here will be concatenated, compiled, and put in js/bin as `global.js` and `global.min.js`
+    - *your_subfolder* - All files in 'your_subfolder' are concatenated, compiled, and put in js/bin as `your_subfolder.js` and `your_subfolder.min.js`
 
 ## Best Practices
 * Use the built-in @include directives of less and sass to include files from css/lib.
