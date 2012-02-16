@@ -1,11 +1,12 @@
 # Boilerstrap
-A ready to go website that integrates Boostrap and HTML5 Boilerplate.
-More best practices than you know what to do with. Just add creativity.
+A blank slate for the modern web. Just add creativity.
 
 ## Wait, what? Why?
 I wanted bootstrap, but with all of the HTML5 Boilerplate tweaks, Modernizr loading, js compression, plus better  coffeescript support, and control of js concatenation.
 
 I also wanted an asset organizational strcuture that better assessed the reality that nowdays we live with an uncomforatble mix of compiled and static sources files for css and javascript.
+
+Finally, I just wanted the peace of mind that with a single clone, I'm ready to go with a robust, clean, efficient, cross-browser, optimized, and organized blank slate.
 
 ## How to Use:
 * `rake watch` will build everything and watch for new changes.
