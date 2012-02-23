@@ -40,10 +40,32 @@ task :js do
   end
 
   Dir["#{JS_SRC}/*/"].each do |d|
-    if FileList["#{d}*.js"].any?
-      dname = d.strip.split("/")[-1]
-      puts "---> Concatenating all javascript files inside of #{dname} to #{dname}.js"
-      `cat #{d}*.js > #{JS_BIN}/#{dname}.js`
+    dname = d.strip.split("/")[-1]
+    line_num = 0
+    num_files = FileList["#{d}*.js"].size
+
+    if FileList["#{d}ORDERING"].any?
+      puts "---> Concatenating all javascript files inside of #{dname} to #{dname}.js in the order found in the 'ORDERING' file"
+      file = File.new(FileList["#{d}ORDERING"][0], 'r')
+      file.each_line("\n") do |l|
+        l = l.strip
+        if l != ""
+          if line_num == 0
+            `cat #{d}#{l} > #{JS_BIN}/#{dname}.js`
+          else
+            `cat #{d}#{l} >> #{JS_BIN}/#{dname}.js`
+          end
+          line_num += 1
+        end
+      end
+      if num_files != line_num
+        $stderr.puts "XXX> WARNING! The number of files in #{dname} does not match the number in 'ORDERING'. You may be forgetting to concatenate some."
+      end
+    else
+      if FileList["#{d}*.js"].any?
+        puts "---> Concatenating all javascript files inside of #{dname} to #{dname}.js"
+        `cat #{d}*.js > #{JS_BIN}/#{dname}.js`
+      end
     end
   end
 
