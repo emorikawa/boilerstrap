@@ -44,7 +44,7 @@ task :js do
     line_num = 0
     num_files = FileList["#{d}*.js"].size
 
-    if FileList["#{d}ORDERING"].any?
+    if File.exist? "#{d}ORDERING"
       puts "---> Concatenating all javascript files inside of #{dname} to #{dname}.js in the order found in the 'ORDERING' file"
       file = File.new(FileList["#{d}ORDERING"][0], 'r')
       file.each_line("\n") do |l|
