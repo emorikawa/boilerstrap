@@ -21,6 +21,9 @@ task :default do
 end
 
 task :watch do
+  Rake::Task['js'].invoke
+  Rake::Task['minify'].invoke
+  Rake::Task['css'].invoke
   begin
     require 'watchr'
     script = Watchr::Script.new
@@ -32,76 +35,140 @@ task :watch do
   end
 end
 
-desc 'Compiles, and concatenates javascript and coffeescript'
-task :js do
-  if FileList["#{JS_SRC}/*.js"].any?
-    puts "---> Copying over raw javascript files"
-    `cp #{JS_SRC}/*.js #{JS_BIN}/`
-  end
 
+def compileSubFolder()
   Dir["#{JS_SRC}/*/"].each do |d|
     dname = d.strip.split("/")[-1]
+    # We need to clear the file before building it again
+    File.delete "#{JS_BIN}/#{dname}.js" if File.exists? "#{JS_BIN}/#{dname}.js"
     line_num = 0
-    num_files = FileList["#{d}*.js"].size
+    num_files = FileList["#{d}*.coffee"].size + FileList["#{d}*.js"].size
 
+    # Concatenate in the order of the 'ORDERING' file
     if File.exist? "#{d}ORDERING"
-      puts "---> Concatenating all javascript files inside of #{dname} to #{dname}.js in the order found in the 'ORDERING' file"
-      file = File.new(FileList["#{d}ORDERING"][0], 'r')
+      js_files = []
+      coffee_files = []
+      file = File.new("#{d}ORDERING", 'r')
       file.each_line("\n") do |l|
         l = l.strip
-        if l != ""
-          if line_num == 0
-            `cat #{d}#{l} > #{JS_BIN}/#{dname}.js`
-          else
-            `cat #{d}#{l} >> #{JS_BIN}/#{dname}.js`
-          end
-          line_num += 1
+        if l == "" then next end
+
+        extension = l.split('.')[-1].downcase
+        if extension == "coffee"
+          coffee_files << l
+        elsif extension == "js"
+          js_files << l
+        else
+          $stderr.puts "XXX> WARNING! #{l} must have a valid *.coffee or *.js ending"
         end
+        line_num += 1
       end
+
       if num_files != line_num
         $stderr.puts "XXX> WARNING! The number of files in #{dname} does not match the number in 'ORDERING'. You may be forgetting to concatenate some."
       end
+
+      if not js_files.empty?
+        puts "---> Using ORDERING file to concatenate JAVASCRIPT files inside of #{dname} to #{dname}.js"
+      end
+
+      for js_file in js_files
+        puts "     #{dname}.js <--- #{dname}/#{js_file}"
+        if File.exists? "#{JS_BIN}/#{dname}.js"
+          `cat #{d}#{js_file} >> #{JS_BIN}/#{dname}.js`
+        else
+          `cat #{d}#{js_file} > #{JS_BIN}/#{dname}.js`
+        end
+      end
+
+      if not coffee_files.empty?
+        puts "---> Using ORDERING file to concatenate COFFEESCRIPT files inside of #{dname} to #{dname}.js"
+      end
+
+      `rm -rf #{d}tmp/` if File.directory? "#{d}tmp/"
+      for coffee_file in coffee_files
+        puts "     #{dname}.js <--- #{dname}/#{coffee_file}"
+        `coffee --compile --output #{d}tmp/ #{d}#{coffee_file}`
+      end
+      for compiled_coffee in FileList["#{d}tmp/*"]
+        if File.exists? "#{JS_BIN}/#{dname}.js"
+          `cat #{compiled_coffee} >> #{JS_BIN}/#{dname}.js`
+        else
+          `cat #{compiled_coffee} > #{JS_BIN}/#{dname}.js`
+        end
+      end
+      `rm -rf #{d}tmp/`
+
+    # Otherwise simply concatenate in the order of directory listing
     else
-      if FileList["#{d}*.js"].any?
+      js_files = FileList["#{d}*.js"]
+      if js_files.any?
         puts "---> Concatenating all javascript files inside of #{dname} to #{dname}.js"
+        for js_file in js_files
+          puts "     #{dname}.js <--- #{dname}/#{js_file.split("/")[-1]}"
+        end
         `cat #{d}*.js > #{JS_BIN}/#{dname}.js`
       end
-    end
-  end
-
-  if FileList["#{JS_SRC}/*.coffee"].any?
-    if installed? "coffee"
-      puts "---> Compiling individual coffeescript files"
-      `coffee -c -o #{JS_BIN}/ #{JS_SRC}/*.coffee`
-    else
-      fail "You need coffeescript! Install it by running: `npm install -g coffee-script`"
-    end
-  end
-
-  Dir["#{JS_SRC}/*/"].each do |d|
-    if FileList["#{d}*.coffee"].any?
-      if installed? "coffee"
-        dname = d.strip.split("/")[-1]
-        puts "---> Concatenating all coffeescript files inside of #{dname} then compiling to #{dname}.js"
-        `coffee --join #{JS_BIN}/#{dname}.coffee --compile #{d}*.coffee`
-      else
-        fail "You need coffeescript! Install it by running: `npm install -g coffee-script`"
+      coffee_files = FileList["#{d}*.coffee"]
+      if coffee_files.any?
+        if installed? "coffee"
+          puts "---> Concatenating all coffeescript files inside of #{dname} then compiling to #{dname}.js"
+          for coffee_file in coffee_files
+            puts "     #{dname}.js <--- #{dname}/#{coffee_file.split("/")[-1]}"
+          end
+          `coffee --join #{JS_BIN}/#{dname}.js --compile #{d}*.coffee`
+        else
+          fail "You need coffeescript! Install it by running: `npm install -g coffee-script`"
+        end
       end
     end
   end
 end
 
+desc 'Compiles, and concatenates javascript and coffeescript'
+task :js do
+  puts "\n=== COMPILE JAVASCRIPT ==="
+  ### COMPILE INDIVIDUAL FILES
+  js_files = FileList["#{JS_SRC}/*.js"]
+  if js_files.any?
+    puts "---> Copying over raw javascript files"
+    `cp #{JS_SRC}/*.js #{JS_BIN}/`
+    for js_file in js_files
+      js_file = js_file.split("/")[-1]
+      puts "     #{js_file}.js <--- #{js_file}.js"
+    end
+  end
+
+  coffee_files = FileList["#{JS_SRC}/*.coffee"]
+  if coffee_files.any?
+    if installed? "coffee"
+      puts "---> Compiling individual coffeescript files"
+      `coffee -c -o #{JS_BIN}/ #{JS_SRC}/*.coffee`
+      for coffee_file in coffee_files
+        coffee_file = coffee_file.split("/")[-1]
+        puts "     #{coffee_file}.js <--- #{coffee_file}.coffee"
+      end
+    else
+      fail "You need coffeescript! Install it by running: `npm install -g coffee-script`"
+    end
+  end
+
+  ### COMPILE SUB FOLDERS
+  compileSubFolder()
+
+end
+
 desc 'Minify all javascript files'
 task :minify do
+  puts "\n=== MINIFY JAVASCRIPT ==="
   puts "---> Minifying all javascript files"
   FileList["#{JS_BIN}/*.js"].each do |f|
     fname = f.strip.split("/")[-1]
-
     # Don't minify things that are already minified!
     if fname.split(".")[-2] != "min"
       if installed? "uglifyjs"
         min_name = fname.insert(fname.rindex(".js"), ".min")
-        puts "     Minifying #{fname} to #{min_name}"
+        puts "     Minifying #{f.strip.split("/")[-1]} to #{min_name}"
         `uglifyjs -o #{JS_BIN}/#{min_name} #{f}`
       else
         fail "You need uglifyjs! Install it by running: `npm install -g uglify-js`"
@@ -112,6 +179,7 @@ end
 
 desc 'Compiles, concatenates, and minifies css, less, and sass'
 task :css do
+  puts "\n=== COMPILE CSS ==="
   if FileList["#{CSS_SRC}/*.css"].any?
     puts "---> Copying over raw css files"
     `cp #{CSS_SRC}/*.css #{CSS_BIN}/`
