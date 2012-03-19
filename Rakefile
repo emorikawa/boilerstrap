@@ -15,7 +15,7 @@ end
 desc 'Runs all javascript and css related jobs'
 task :default do
   Rake::Task['js'].invoke
-  Rake::Task['minify'].invoke
+  # Rake::Task['minify'].invoke
   Rake::Task['css'].invoke
   puts "==== DONE ===="
 end
@@ -89,12 +89,14 @@ def compileSubFolder()
       for coffee_file in coffee_files
         puts "     #{dname}.js <--- #{dname}/#{coffee_file}"
         `coffee --compile --output #{d}tmp/ #{d}#{coffee_file}`
-      end
-      for compiled_coffee in FileList["#{d}tmp/*"]
+        fname_arr = coffee_file.split(".")
+        fname_arr.slice!(-1)
+        fname = fname_arr.join(".")
+
         if File.exists? "#{JS_BIN}/#{dname}.js"
-          `cat #{compiled_coffee} >> #{JS_BIN}/#{dname}.js`
+          `cat #{d}tmp/#{fname}.js >> #{JS_BIN}/#{dname}.js`
         else
-          `cat #{compiled_coffee} > #{JS_BIN}/#{dname}.js`
+          `cat #{d}tmp/#{fname}.js > #{JS_BIN}/#{dname}.js`
         end
       end
       `rm -rf #{d}tmp/`
